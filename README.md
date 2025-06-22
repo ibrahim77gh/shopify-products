@@ -4,9 +4,13 @@ This project implements a simplified backend system using Python, Django, and Dj
 
 ## Features
 
+* **JWT Authentication:** Secure user authentication using JSON Web Tokens with the `djoser` package.
+    * Email verification for new accounts.
+    * Password reset functionality.
+    * Token refresh capabilities.
 * **REST API Endpoints:** CRUD operations for `Product` (Name, SKU, Price, Inventory Quantity, Last Updated Timestamp).
     * Filtering and searching capabilities (price, SKU, product name, quantity).
-    * Basic token authentication restricting access to a specific user group (`API Users`).
+    * Basic token authentication restricting access to only authenticated users.
 * **Webhook Endpoint:** A dedicated endpoint (`/api/shopify-webhook/`) to handle product creation and inventory updates from Shopify, including HMAC signature verification.
 * **Admin Interface Customization:**
     * Advanced filtering in Django admin.
@@ -22,7 +26,7 @@ This project implements a simplified backend system using Python, Django, and Dj
 ### Prerequisites
 
 * Docker and Docker Compose installed on your machine.
-* (Optional, for manual testing outside Docker) Python 3.10+, pip, Redis server.
+* (Optional, for manual testing outside Docker) Python 3.12, pip, Redis server.
 
 ### Setup (Docker Compose)
 
