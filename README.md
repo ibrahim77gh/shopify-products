@@ -95,18 +95,32 @@ The API is available at `http://localhost:8000/api/`.
 
 ### Authentication
 
-API endpoints (except `/api/shopify-webhook/`) require Token Authentication.
+API endpoints (except `/api/shopify-webhook/`) require JWT Authentication.
 
-1.  **Get a Token:**
+1. **Register a New User:**
     ```bash
-    curl -X POST -H "Content-Type: application/json" -d '{"username":"YOUR_USERNAME", "password":"YOUR_PASSWORD"}' http://localhost:8000/api-token-auth/
+    curl -X POST -H "Content-Type: application/json" -d '{"email":"user@example.com", "password":"secure_password", "re_password":"secure_password"}' http://localhost:8000/auth/users/
     ```
-    (Replace `YOUR_USERNAME` and `YOUR_PASSWORD` with an API user's credentials).
-    You will receive a `{"token": "..."}` response.
 
-2.  **Use the Token:**
-    Include the token in the `Authorization` header for all authenticated requests:
-    `Authorization: Token YOUR_AUTH_TOKEN`
+2. **Get JWT Token:**
+    ```bash
+    curl -X POST -H "Content-Type: application/json" -d '{"email":"email", "password":"secure_password"}' http://localhost:8000/auth/jwt/create/
+    ```
+    You will receive a response with `access` and `refresh` tokens.
+
+3. **Use the Token:**
+    Include the access token in the Authorization header for all authenticated requests:
+    `Authorization: JWT YOUR_ACCESS_TOKEN`
+
+4. **Refresh Token:**
+    ```bash
+    curl -X POST -H "Content-Type: application/json" -d '{"refresh":"YOUR_REFRESH_TOKEN"}' http://localhost:8000/auth/jwt/refresh/
+    ```
+
+5. **Verify Token:**
+    ```bash
+    curl -X POST -H "Content-Type: application/json" -d '{"token":"YOUR_ACCESS_TOKEN"}' http://localhost:8000/auth/jwt/verify/
+    ```
 
 ### Product Endpoints
 
