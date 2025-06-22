@@ -168,3 +168,5 @@ CELERY_TIMEZONE = 'UTC' # Ensure timezone consistency
 
 # Configure Celery Beat to use Django's database scheduler
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+SITE_NAME = 'Shopify Inventory Management'
