@@ -1,0 +1,9 @@
+name,sku,price,inventory_quantity
+Red T-Shirt,TSHIRT-RED-S,19.99,150
+Blue Jeans,JEANS-BLUE-32,49.50,80
+Green Hoodie,HOODIE-GRN-L,35.00,50
+Laptop Pro,LAP-001,1200.00,10
+Wireless Mouse,MOU-002,25.00,200
+Red T-Shirt,TSHIRT-RED-S,20.00,160
+Invalid Product,,20.00,100
+Another Item,ITEM-004,abc,50
