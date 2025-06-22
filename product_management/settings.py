@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-je5auj=3!tc_3j6r%s3ot+-pk775fhqg-fcnj78=@*t^^7!ms3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'authentication',
     'shopify_app',
+    'django_celery_beat',
 ]
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
@@ -84,12 +85,24 @@ WSGI_APPLICATION = 'product_management.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG == True:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ.get("DB_NAME"),
+            'USER': os.environ.get("DB_USER"),
+            'PASSWORD': os.environ.get("DB_PASSWORD"),
+            'HOST': os.environ.get("DB_HOST"),
+            'PORT': os.environ.get("DB_PORT"),
+        }
+    }
 
 
 # Password validation
@@ -126,11 +139,32 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'devsdevs005@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'devsdevs005@gmail.com'
+EMAIL_USE_TLS = True
+
 SHOPIFY_WEBHOOK_SECRET = os.getenv('SHOPIFY_WEBHOOK_SECRET', 'default_webhook_secret')
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0' # Use Redis as the message broker
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' # Store results in Redis
+CELERY_ACCEPT_CONTENT = ['json'] # Accept JSON content
+CELERY_TASK_SERIALIZER = 'json' # Serialize tasks to JSON
+CELERY_RESULT_SERIALIZER = 'json' # Serialize results to JSON
+CELERY_TIMEZONE = 'UTC' # Ensure timezone consistency
+
+# Configure Celery Beat to use Django's database scheduler
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

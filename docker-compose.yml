@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Django web application service
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    # Load environment variables from .env file
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+    # To run migrations and collect static files automatically on startup
+    entrypoint: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+
+  # Celery worker service
+  celery_worker:
+    build: .
+    command: celery -A inventory_backend worker -l info
+    volumes:
+      - .:/app
+    # Load environment variables from .env file
+    env_file:
+      - ./.env
+    depends_on:
+      - web
+      - redis
+
+  # Celery Beat service (database scheduler)
+  celery_beat:
+    build: .
+    command: celery -A inventory_backend beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    # Load environment variables from .env file
+    env_file:
+      - ./.env
+    depends_on:
+      - web
+      - redis
+    # This ensures migrations run before beat tries to access the DB
+    entrypoint: sh -c "python manage.py migrate --noinput && celery -A inventory_backend beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+
+  # Redis service (message broker for Celery)
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data # Persist Redis data
+
+volumes:
+  redis_data: # Define a named volume for Redis data persistence

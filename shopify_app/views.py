@@ -16,6 +16,7 @@ from .serializers import ProductSerializer
 from .filters import ProductFilter
 import logging
 from django.conf import settings
+import base64 # For base64 encoding the HMAC digest
 
 
 logger = logging.getLogger(__name__)
@@ -63,14 +64,18 @@ class ShopifyWebhookView(APIView):
         webhook_secret = settings.SHOPIFY_WEBHOOK_SECRET.encode('utf-8')
         request_body = request.body # Raw body is needed for HMAC calculation
 
-        calculated_hmac = hmac.new(
+        # Calculate HMAC
+        # hmac.new returns a hash object. We need its digest in bytes, then base64 encode it.
+        calculated_hmac_digest = hmac.new(
             webhook_secret,
             request_body,
             hashlib.sha256
-        ).hexdigest()
+        ).digest() # Get the digest as bytes
 
-        if not hmac.compare_digest(calculated_hmac, hmac_header):
-            logger.warning(f"Webhook signature mismatch: Calculated '{calculated_hmac}', Received '{hmac_header}'")
+        calculated_hmac_base64 = base64.b64encode(calculated_hmac_digest).decode('utf-8') # Base64 encode and decode to string
+
+        if not hmac.compare_digest(calculated_hmac_base64, hmac_header):
+            logger.warning(f"Webhook signature mismatch: Calculated '{calculated_hmac_base64}', Received '{hmac_header}'")
             return Response(
                 {"error": "Unauthorized webhook request: Invalid HMAC signature."},
                 status=status.HTTP_401_UNAUTHORIZED
