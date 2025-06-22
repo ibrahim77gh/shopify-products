@@ -78,21 +78,7 @@ This project implements a simplified backend system using Python, Django, and Dj
     ```
     Follow the prompts to create your superuser account.
 
-6.  **Create the 'API Users' Group:**
-    This group is required for API access.
-    ```bash
-    docker-compose exec web python manage.py shell
-    ```
-    Inside the Django shell, run:
-    ```python
-    from django.contrib.auth.models import Group, User
-    group, created = Group.objects.get_or_create(name='API Users')
-    user = User.objects.get(username='YOUR_SUPERUSER_USERNAME') # Replace YOUR_SUPERUSER_USERNAME
-    user.groups.add(group)
-    exit()
-    ```
-
-7.  **Set up Celery Beat Schedules (via Django Admin):**
+6.  **Set up Celery Beat Schedules (via Django Admin):**
     * Open your browser and navigate to the Django admin: `http://localhost:8000/admin/`
     * Log in with your superuser credentials.
     * Under "DJANGO CELERY BEAT", go to "Periodic Tasks" and click "Add Periodic Task".
