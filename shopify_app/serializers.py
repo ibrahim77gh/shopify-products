@@ -8,5 +8,5 @@ class ProductSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Product
-        fields = '__all__' # Include all fields from the Product model
+        fields = '__all__'
         read_only_fields = ('last_updated',) 

@@ -15,9 +15,6 @@ from .models import Product
 
 logger = logging.getLogger(__name__)
 
-# Define a mock CSV file path for demonstration purposes.
-# In a real application, you might get this path from an argument,
-# a shared storage location, or dynamically generated.
 MOCK_CSV_FILE_PATH = os.path.join(settings.BASE_DIR, 'mock_products.csv')
 
 @shared_task(bind=True)
@@ -202,7 +199,7 @@ def generate_and_email_inventory_report(import_summary, recipient_email):
             message=report_content,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[recipient_email],
-            fail_silently=False, # Set to True in production if email failures shouldn't halt the process
+            fail_silently=False,
         )
         logger.info(f"Inventory report successfully emailed to {recipient_email}.")
     except Exception as e:

@@ -8,7 +8,6 @@ class ProductFilter(django_filters.FilterSet):
     FilterSet for the Product model.
     Provides filtering capabilities for API endpoints.
     """
-    # Define range filters for price and inventory_quantity
     price__gte = django_filters.NumberFilter(field_name='price', lookup_expr='gte', help_text="Filter by price greater than or equal to")
     price__lte = django_filters.NumberFilter(field_name='price', lookup_expr='lte', help_text="Filter by price less than or equal to")
     inventory_quantity__gte = django_filters.NumberFilter(field_name='inventory_quantity', lookup_expr='gte', help_text="Filter by quantity greater than or equal to")

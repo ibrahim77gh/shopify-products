@@ -39,10 +39,8 @@ class Product(models.Model):
             bool: True if update was successful, False otherwise.
         """
         if operation == 'add':
-            # Use F() expression for atomic update to prevent race conditions
             self.inventory_quantity = F('inventory_quantity') + quantity_change
         elif operation == 'subtract':
-            # Ensure quantity does not go below zero for subtraction
             if self.inventory_quantity - quantity_change < 0:
                 print(f"Warning: Cannot reduce inventory below zero for SKU {self.sku}. Current: {self.inventory_quantity}, Attempted decrease: {quantity_change}")
                 return False
@@ -51,9 +49,7 @@ class Product(models.Model):
             print(f"Error: Invalid operation '{operation}' for inventory update.")
             return False
 
-        # Save the instance to apply the F() expression and update last_updated
         self.save(update_fields=['inventory_quantity', 'last_updated'])
-        # Refresh from DB to get the actual updated value if needed immediately
         self.refresh_from_db()
         return True
 

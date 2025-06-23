@@ -2,21 +2,20 @@
 
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
-from rest_framework.decorators import action # Keep for potential future custom actions on ProductViewSet
-from rest_framework.permissions import IsAuthenticated # Default DRF permission for authenticated users
-from rest_framework.views import APIView # Import APIView for the webhook
-from django.db import transaction, IntegrityError # Import IntegrityError for unique constraints
-import json # For parsing webhook payload
-from django_filters.rest_framework import DjangoFilterBackend # For advanced filtering capabilities
-import hmac # For Shopify webhook signature verification (future implementation)
-import hashlib # For Shopify webhook signature verification (future implementation)
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
+from django.db import transaction, IntegrityError
+import json
+from django_filters.rest_framework import DjangoFilterBackend
+import hmac
+import hashlib
 
 from .models import Product
 from .serializers import ProductSerializer
 from .filters import ProductFilter
 import logging
 from django.conf import settings
-import base64 # For base64 encoding the HMAC digest
+import base64
 
 
 logger = logging.getLogger(__name__)
@@ -31,17 +30,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filterset_class = ProductFilter # Use our custom ProductFilter for advanced filtering
     search_fields = ['name', 'sku'] # Fields to search across
-    # Apply custom permission: users must be authenticated and in the 'API Users' group
-    permission_classes = [IsAuthenticated]
 
-    # The shopify_webhook action has been moved to a separate APIView.
-    # You can customize individual actions if needed, e.g., to override permissions for a specific action
-    # def get_permissions(self):
-    #     if self.action == 'list':
-    #         permission_classes = [AllowAny] # Example: allow anyone to list products
-    #     else:
-    #         permission_classes = [IsAuthenticated, IsAPIUser]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 class ShopifyWebhookView(APIView):

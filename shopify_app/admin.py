@@ -1,13 +1,11 @@
-# products/admin.py
-
 from django.contrib import admin
 from django.db import transaction
 from django.template.defaultfilters import pluralize
-from django.contrib import messages # For displaying success/error messages in admin
+from django.contrib import messages
 
 from .models import Product
 
-# Define a custom admin action for bulk price updates
+# Admin action for bulk price updates
 @admin.action(description='Set selected products price to a specific value')
 def set_price_to_value(modeladmin, request, queryset):
     """
@@ -33,7 +31,7 @@ def set_price_to_value(modeladmin, request, queryset):
         updated_count = 0
         with transaction.atomic():
             for product in queryset:
-                if product.price != new_price: # Only update if price actually changes
+                if product.price != new_price:
                     product.price = new_price
                     product.save(update_fields=['price', 'last_updated'])
                     updated_count += 1
@@ -44,10 +42,6 @@ def set_price_to_value(modeladmin, request, queryset):
             modeladmin.message_user(request, "No products had their price changed (perhaps already at the target price).", level=messages.INFO)
         return
 
-    # If 'apply' is not in request.POST, it's the initial form display
-    # Render a custom form to ask for the new price
-    # We can use Django's built-in change_list.html for rendering custom forms for actions
-    # by providing context.
     return modeladmin.render_change_list(request, extra_context={
         'title': 'Set Price for Products',
         'action_name': 'set_price_to_value',
@@ -57,7 +51,7 @@ def set_price_to_value(modeladmin, request, queryset):
     })
 
 
-# Define another admin action for bulk price increase by percentage
+# Admin action for bulk price increase by percentage
 @admin.action(description='Increase selected products price by percentage')
 def increase_price_by_percentage(modeladmin, request, queryset):
     """
@@ -112,44 +106,33 @@ class ProductAdmin(admin.ModelAdmin):
     Customizes the Django admin interface for the Product model.
     """
     list_display = ('name', 'sku', 'price', 'inventory_quantity', 'last_updated')
-    search_fields = ('name', 'sku') # Basic search at the top of the admin list
+    search_fields = ('name', 'sku')
     
-    # Advanced filtering options on the right sidebar
     list_filter = (
-        'sku', # Direct filter for SKU
-        'name', # Direct filter for product name
-        ('last_updated', admin.DateFieldListFilter), # Date range filter for last_updated
-        'price', # Numeric filter for price
-        'inventory_quantity', # Numeric filter for inventory quantity
+        'sku',
+        'name',
+        ('last_updated', admin.DateFieldListFilter),
+        'price',
+        'inventory_quantity',
     )
 
-    # Enable date hierarchy for last_updated for quick navigation by year/month/day
     date_hierarchy = 'last_updated'
 
-    # Add quick actions for bulk updates
     actions = [set_price_to_value, increase_price_by_percentage]
 
-    # Custom template for the bulk price update action form
     def get_urls(self):
         from django.urls import path
         urls = super().get_urls()
         info = self.model._meta.app_label, self.model._meta.model_name
-        # Add a custom URL for rendering action forms if needed more generically
-        # For our case, render_change_list is used, which often handles it.
         return urls
 
     def changelist_view(self, request, extra_context=None):
-        # Override changelist_view to pass extra context for action forms
         extra_context = extra_context or {}
         
-        # This will be used by our custom admin action form templates
-        # It's crucial for the form to know which products are selected.
         if 'action' in request.POST and request.POST['action'] in self.actions and 'select_across' in request.POST:
             selected_ids = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
             extra_context['selected_ids'] = ','.join(selected_ids)
-            # Pass the action itself to the context if needed for specific rendering logic
             extra_context['action_name'] = request.POST['action']
-            # Pass the current form template based on the action selected
             if request.POST['action'] == 'set_price_to_value':
                 extra_context['form_template'] = 'admin/products/product/set_price_action_form.html'
             elif request.POST['action'] == 'increase_price_by_percentage':
