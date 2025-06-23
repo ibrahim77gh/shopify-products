@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 MOCK_CSV_FILE_PATH = os.path.join(settings.BASE_DIR, 'mock_products.csv')
 
 @shared_task(bind=True)
-def import_product_data_from_csv(self, csv_data_string=None, report_email_recipient='admin@inventory.com'):
+def import_product_data_from_csv(self, csv_data_string=None, report_email_recipient='syedibrahim4091@gmail.com'):
     """
     Task 1 & 2: Imports product data from a CSV string,
     validates it, and either creates new products or updates
