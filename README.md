@@ -40,12 +40,28 @@ This project implements a simplified backend system using Python, Django, and Dj
 
     Example `.env` content:
     ```
+    DEBUG=<True or False>
+    DJANGO_ALLOWED_HOSTS=*
+    
+    # Database Configuration
+    DB_NAME=<your_database_name>
+    DB_USER=<your_database_username>
+    DB_PASSWORD=<your_database_password>
+    DB_HOST=<your_database_host>
+    DB_PORT=<your_database_port>
+    
+    # For SQLite fallback (optional)
     DJANGO_DATABASE_NAME=db.sqlite3
     DJANGO_DATABASE_ENGINE=django.db.backends.sqlite3
-    DJANGO_ALLOWED_HOSTS=*
-    SHOPIFY_WEBHOOK_SECRET=YOUR_SHOPIFY_WEBHOOK_SECRET_HERE
+    
+    # Shopify Integration
+    SHOPIFY_WEBHOOK_SECRET=<your_shopify_webhook_secret>
+    
+    # Email Configuration
+    EMAIL_HOST_PASSWORD=<your_email_password>
     ```
-    **Remember to replace `YOUR_SHOPIFY_WEBHOOK_SECRET_HERE` with the actual secret from your Shopify webhook setup.**
+    **Note: These are placeholder values. Use appropriate values for your environment.**
+
 
 3.  **Create a `mock_products.csv` file** in the project root (same directory as `docker-compose.yml`) with the following content:
     ```csv
